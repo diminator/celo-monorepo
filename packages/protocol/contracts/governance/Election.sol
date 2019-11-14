@@ -815,4 +815,17 @@ contract Election is
     }
     return res;
   }
+
+  /**
+   * @notice Returns get current validators using the precompile.
+   * @return List of current validators.
+   */
+  function currentValidators() public view returns (address[] memory) {
+    uint256 n = numberValidatorsInCurrentSet();
+    address[] memory res = new address[](n);
+    for (uint256 idx = 0; idx < n; idx++) {
+      res[idx] = validatorAddressFromCurrentSet(idx);
+    }
+    return res;
+  }
 }
