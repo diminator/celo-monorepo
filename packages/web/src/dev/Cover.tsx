@@ -52,8 +52,9 @@ const CoverComponent = React.memo(function Cover({ t }: I18nProps) {
           <H3 style={textStyles.invert}>{t('purposeTitle')}</H3>
         </Cell>
         <Cell span={Spans.half}>
-          <H4 style={[textStyles.invert, standardStyles.elementalMarginBottom]}>
-            <Trans i18nKey={'purposeText'}>
+          <H4 style={[textStyles.invert, standardStyles.elementalMarginBottom, styles.purposeText]}>
+            <Trans i18nKey={t('purposeText')}>
+              Learn how to run a node on Celo’s peer-to-peer network and win up to{' '}
               <Text href={CeloLinks.discourse} style={styles.colorEmphasis}>
                 2 million Celo Gold in rewards.
               </Text>*
@@ -82,7 +83,7 @@ const CoverComponent = React.memo(function Cover({ t }: I18nProps) {
             size={SIZE}
             kind={BTN.PRIMARY}
             text={t('challengeBtnText')}
-            href="https://forum.celo.org/t/the-great-celo-stake-off-the-details/136"
+            href="https://medium.com/celohq/announcing-the-great-celo-stake-off-12eb15dd5eb0"
           />
         </Cell>
       </GridRow>
@@ -181,6 +182,9 @@ const styles = StyleSheet.create({
   },
   colorEmphasis: {
     color: colors.gold,
+  },
+  purposeText: {
+    maxWidth: 385,
   },
 })
 

@@ -8,6 +8,7 @@ import { assert } from 'chai'
 import Web3 from 'web3'
 import { assertAlmostEqual, getContext, sleep, waitToFinishSyncing } from './utils'
 import { initAndStartGeth, GethRunConfig, GethInstanceConfig, importGenesis } from '../lib/geth'
+import path from 'path'
 
 interface MemberSwapper {
   swap(): Promise<void>
@@ -111,7 +112,7 @@ describe('governance tests', () => {
     gethRepoPath: '../../../celo-blockchain',
     migrate: true,
     runPath: TMP_PATH,
-    genesisPath: TMP_PATH + '/genesis.json',
+    network: 'local',
     networkId: 1101,
     instances: [],
   }
@@ -281,7 +282,7 @@ describe('governance tests', () => {
       ]
       await Promise.all(
         additionalNodes.map((nodeConfig) =>
-          initAndStartGeth(context.hooks.gethBinaryPath, nodeConfig)
+          initAndStartGeth(context.hooks.gethBinaryPath, nodeConfig, true)
         )
       )
       // Connect the validating nodes to the non-validating nodes, to test that announce messages
@@ -312,7 +313,7 @@ describe('governance tests', () => {
       ]
       await Promise.all(
         additionalValidatingNodes.map((nodeConfig) =>
-          initAndStartGeth(context.hooks.gethBinaryPath, nodeConfig)
+          initAndStartGeth(context.hooks.gethBinaryPath, nodeConfig, true)
         )
       )
 
@@ -338,7 +339,10 @@ describe('governance tests', () => {
       await waitToFinishSyncing(groupWeb3)
       const groupKit = newKitFromWeb3(groupWeb3)
       const group: string = (await groupWeb3.eth.getAccounts())[0]
-      await (await groupKit.contracts.getElection()).activate(group)
+      const txos = await (await groupKit.contracts.getElection()).activate(group)
+      for (const txo of txos) {
+        await txo.sendAndWaitForReceipt({ from: group })
+      }
 
       validators = await groupKit._web3Contracts.getValidators()
       const membersToSwap = [validatorAccounts[0], validatorAccounts[1]]
@@ -644,6 +648,7 @@ describe('governance tests', () => {
           const activeVotes = new BigNumber(
             await election.methods.getActiveVotes().call({}, blockNumber - 1)
           )
+          assert.isFalse(activeVotes.isZero())
           const targetVotingYield = new BigNumber(
             (await epochRewards.methods.getTargetVotingYieldParameters().call({}, blockNumber))[0]
           )
@@ -685,17 +690,26 @@ describe('governance tests', () => {
         const previousTarget = new BigNumber(
           (await epochRewards.methods.getTargetVotingYieldParameters().call({}, blockNumber - 1))[0]
         )
-        const difference = currentTarget.minus(previousTarget)
-
-        // Assert equal to 9 decimal places due to rounding errors.
-        assert.equal(
-          fromFixed(difference)
-            .dp(9)
-            .toFixed(),
-          fromFixed(expected)
-            .dp(9)
-            .toFixed()
+        const max = new BigNumber(
+          (await epochRewards.methods.getTargetVotingYieldParameters().call({}, blockNumber))[1]
         )
+        const expectedTarget = previousTarget.plus(expected)
+        if (expectedTarget.isGreaterThanOrEqualTo(max)) {
+          assert.equal(currentTarget.toFixed(), max.toFixed())
+        } else if (expectedTarget.isLessThanOrEqualTo(0)) {
+          assert.isTrue(currentTarget.isZero())
+        } else {
+          const difference = currentTarget.minus(previousTarget)
+          // Assert equal to 9 decimal places due to rounding errors.
+          assert.equal(
+            fromFixed(difference)
+              .dp(9)
+              .toFixed(),
+            fromFixed(expected)
+              .dp(9)
+              .toFixed()
+          )
+        }
       }
 
       const assertTargetVotingYieldUnchanged = async (blockNumber: number) => {
@@ -731,7 +745,7 @@ describe('governance tests', () => {
     beforeEach(async function(this: any) {
       this.timeout(0) // Disable test timeout
       await restart()
-      const genesis = await importGenesis(gethConfig.genesisPath)
+      const genesis = await importGenesis(path.join(gethConfig.runPath, 'genesis.json'))
       Object.keys(genesis.alloc).forEach((address) => {
         goldGenesisSupply = goldGenesisSupply.plus(genesis.alloc[address].balance)
       })

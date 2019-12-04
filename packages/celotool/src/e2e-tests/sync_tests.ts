@@ -10,8 +10,8 @@ describe('sync tests', function(this: any) {
 
   const gethConfig: GethRunConfig = {
     networkId: 1101,
+    network: 'local',
     runPath: TMP_PATH,
-    genesisPath: TMP_PATH + '/genesis.json',
     gethRepoPath: '../../../celo-blockchain',
     migrate: true,
     instances: [],
@@ -69,7 +69,7 @@ describe('sync tests', function(this: any) {
       rpcport: 8553,
       peers: ['8545'],
     }
-    await initAndStartGeth(hooks.gethBinaryPath, fullInstance)
+    await initAndStartGeth(hooks.gethBinaryPath, fullInstance, true)
     const web3 = new Web3('http://localhost:8553')
     await waitToFinishSyncing(web3)
   })
@@ -91,7 +91,7 @@ describe('sync tests', function(this: any) {
           lightserv: syncmode !== 'light' && syncmode !== 'ultralight',
           peers: ['8553'],
         }
-        await initAndStartGeth(hooks.gethBinaryPath, syncInstance)
+        await initAndStartGeth(hooks.gethBinaryPath, syncInstance, true)
       })
 
       afterEach(() => killInstance(syncInstance))
@@ -104,7 +104,7 @@ describe('sync tests', function(this: any) {
         // Give the validators time to create more blocks.
         await sleep(20)
         const validatingLatestBlock = await validatingWeb3.eth.getBlockNumber()
-        await sleep(1)
+        await sleep(10)
         const syncLatestBlock = await syncWeb3.eth.getBlockNumber()
         assert.isAbove(validatingLatestBlock, 1)
         // Assert that the validator is still producing blocks.
@@ -126,7 +126,7 @@ describe('sync tests', function(this: any) {
       this.timeout(0)
       const instance: GethInstanceConfig = gethConfig.instances[0]
       await killInstance(instance)
-      await initAndStartGeth(hooks.gethBinaryPath, { ...instance, peers: ['8547'] })
+      await initAndStartGeth(hooks.gethBinaryPath, { ...instance, peers: ['8547'] }, true)
       await sleep(120) // wait for round change / resync
       const address = (await web3.eth.getAccounts())[0]
       const currentBlock = await web3.eth.getBlock('latest')

@@ -10,6 +10,10 @@ import { colors, standardStyles, textStyles } from 'src/styles'
 import analytics from '../analytics/analytics'
 
 function downloadBenefits() {
+  window.open(
+    'https://storage.googleapis.com/celo_whitepapers/celo-perks-benefits.pdf',
+    `_benefits`
+  )
   analytics.track(`benefits.pdf download`)
 }
 
@@ -42,8 +46,6 @@ class Benefits extends React.PureComponent<Props> {
               size={SIZE.big}
               kind={BTN.PRIMARY}
               text={t('viewBenefits')}
-              href={'https://storage.googleapis.com/celo_whitepapers/celo-perks-benefits.pdf'}
-              target={'_blank'}
               onPress={downloadBenefits}
               align={'center'}
             />

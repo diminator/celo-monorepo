@@ -2,35 +2,19 @@ import * as React from 'react'
 import { colors } from 'src/styles'
 import Svg, { Path } from 'svgs'
 
-export enum Direction {
-  right = 0,
-  down = 90,
-  left = 180,
-  up = 270,
-}
-
 interface Props {
   color: colors
   opacity?: number
   size?: number | string
-  direction?: Direction
 }
 
 export default class Chevron extends React.PureComponent<Props> {
   static defaultProps = {
     size: 14,
-    direction: Direction.right,
   }
-
   render() {
     return (
-      <Svg
-        width={this.props.size}
-        height={this.props.size}
-        viewBox="0 0 8 12"
-        fill="none"
-        transform={`rotate(${this.props.direction})`}
-      >
+      <Svg width={this.props.size} height={this.props.size} viewBox="0 0 8 12" fill="none">
         <Path
           opacity={this.props.opacity || 1}
           fillRule="evenodd"

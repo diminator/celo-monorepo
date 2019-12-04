@@ -1,6 +1,5 @@
 import { cli } from 'cli-ux'
 import { BaseCommand } from '../../base'
-import { validatorTable } from '../validator/list'
 
 export default class ElectionRun extends BaseCommand {
   static description =
@@ -21,6 +20,13 @@ export default class ElectionRun extends BaseCommand {
       signers.map((addr) => validators.getValidatorFromSigner(addr))
     )
     cli.action.stop()
-    cli.table(validatorList, validatorTable)
+    cli.table(validatorList, {
+      address: {},
+      name: {},
+      affiliation: {},
+      score: {},
+      ecdsaPublicKey: {},
+      blsPublicKey: {},
+    })
   }
 }

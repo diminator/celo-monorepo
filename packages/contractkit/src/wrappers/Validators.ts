@@ -197,8 +197,10 @@ export class ValidatorsWrapper extends BaseWrapper<Validators> {
     return {
       name,
       address,
-      ecdsaPublicKey: (res.ecdsaPublicKey as unknown) as string,
-      blsPublicKey: (res.blsPublicKey as unknown) as string,
+      // @ts-ignore Incorrect type for bytes
+      ecdsaPublicKey: res.ecdsaPublicKey,
+      // @ts-ignore Incorrect type for bytes
+      blsPublicKey: res.blsPublicKey,
       affiliation: res.affiliation,
       score: fromFixed(new BigNumber(res.score)),
       signer: res.signer,

@@ -1,17 +1,6 @@
-import { Validator } from '@celo/contractkit/src/wrappers/Validators'
 import { flags } from '@oclif/command'
 import { cli } from 'cli-ux'
 import { BaseCommand } from '../../base'
-
-export const validatorTable = {
-  address: {},
-  name: {},
-  affiliation: {},
-  score: { get: (v: Validator) => v.score.toFixed() },
-  ecdsaPublicKey: {},
-  blsPublicKey: {},
-  signer: {},
-}
 
 export default class ValidatorList extends BaseCommand {
   static description =
@@ -35,6 +24,17 @@ export default class ValidatorList extends BaseCommand {
     const validatorList = await validators.getRegisteredValidators()
 
     cli.action.stop()
-    cli.table(validatorList, validatorTable, { 'no-truncate': res.flags['no-truncate'] })
+    cli.table(
+      validatorList,
+      {
+        address: {},
+        name: {},
+        affiliation: {},
+        score: { get: (v) => v.score.toFixed() },
+        ecdsaPublicKey: {},
+        blsPublicKey: {},
+      },
+      { 'no-truncate': res.flags['no-truncate'] }
+    )
   }
 }

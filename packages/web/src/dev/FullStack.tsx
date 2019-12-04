@@ -177,7 +177,7 @@ class FullStack extends React.PureComponent<I18nProps & ScreenProps, State> {
           </Cell>
           <Cell
             span={Spans.half}
-            tabletSpan={Spans.full}
+            tabletSpan={Spans.three4th}
             style={isDesktop && styles.stackContainer}
           >
             <StackSection
